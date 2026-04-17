@@ -54,6 +54,9 @@ function EditorPage({ content, onContentChange, onTransform, isGenerating }) {
 
   return (
     <div className="editor-page">
+      <div className="editor-header">
+        <h1 className="editor-brand">ProseFrame<span className="editor-divider">|</span>将长文智能分割，转换为精美的社交媒体图片</h1>
+      </div>
       <MarkdownToolbar textareaRef={textareaRef} onFormat={onContentChange} />
 
       <div className="editor-content">
