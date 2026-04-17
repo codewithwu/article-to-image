@@ -1,7 +1,8 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 import { templates, IMAGE_WIDTH, IMAGE_HEIGHT, PADDING } from '../templates/index';
 
-function ArticleBlock({ block, template, titleSize, bodySize }) {
+function ArticleBlock({ block, template, bodySize }) {
   const templateStyles = templates.find(t => t.id === template)?.styles || templates[0].styles;
 
   return (
@@ -32,24 +33,7 @@ function ArticleBlock({ block, template, titleSize, bodySize }) {
         }}
       />
 
-      {/* 标题 */}
-      {block.title && (
-        <h1
-          style={{
-            fontSize: titleSize,
-            color: templateStyles.titleColor,
-            margin: '20px 0 40px 30px',
-            fontWeight: 700,
-            lineHeight: 1.3,
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            letterSpacing: '-0.02em',
-          }}
-        >
-          {block.title}
-        </h1>
-      )}
-
-      {/* 正文 */}
+      {/* 正文 - 使用 ReactMarkdown 渲染 */}
       <div
         style={{
           flex: 1,
@@ -58,11 +42,35 @@ function ArticleBlock({ block, template, titleSize, bodySize }) {
           lineHeight: 1.7,
           fontFamily: 'system-ui, -apple-system, sans-serif',
           letterSpacing: '0.01em',
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
+          overflow: 'hidden',
         }}
       >
-        {block.content}
+        <ReactMarkdown
+          components={{
+            p: ({ children }) => <p style={{ margin: '0 0 1em 0' }}>{children}</p>,
+            h1: ({ children }) => <h1 style={{ fontSize: bodySize * 1.5, fontWeight: 700, margin: '0 0 0.5em 0', lineHeight: 1.3 }}>{children}</h1>,
+            h2: ({ children }) => <h2 style={{ fontSize: bodySize * 1.3, fontWeight: 700, margin: '0 0 0.5em 0', lineHeight: 1.3 }}>{children}</h2>,
+            h3: ({ children }) => <h3 style={{ fontSize: bodySize * 1.1, fontWeight: 700, margin: '0 0 0.5em 0', lineHeight: 1.3 }}>{children}</h3>,
+            ul: ({ children }) => <ul style={{ margin: '0 0 1em 0', paddingLeft: '1.5em' }}>{children}</ul>,
+            ol: ({ children }) => <ol style={{ margin: '0 0 1em 0', paddingLeft: '1.5em' }}>{children}</ol>,
+            li: ({ children }) => <li style={{ marginBottom: '0.3em' }}>{children}</li>,
+            blockquote: ({ children }) => (
+              <blockquote style={{
+                margin: '0 0 1em 0',
+                paddingLeft: '1em',
+                borderLeft: `3px solid ${templateStyles.accentColor}`,
+                color: templateStyles.bodyColor,
+                opacity: 0.85,
+              }}>
+                {children}
+              </blockquote>
+            ),
+            strong: ({ children }) => <strong style={{ fontWeight: 700 }}>{children}</strong>,
+            em: ({ children }) => <em style={{ fontStyle: 'italic' }}>{children}</em>,
+          }}
+        >
+          {block.content}
+        </ReactMarkdown>
       </div>
 
       {/* 底部装饰 */}

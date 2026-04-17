@@ -1,8 +1,8 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
 import html2canvas from 'html2canvas';
-import EditorPanel from './components/EditorPanel';
-import PreviewPanel from './components/PreviewPanel';
+import EditorPage from './components/EditorPage';
+import PreviewPage from './components/PreviewPage';
 import ArticleBlock from './components/ArticleBlock';
 import { splitTextIntoBlocks } from './utils/textSplitter';
 import { downloadImagesAsZip } from './utils/download';
@@ -12,27 +12,28 @@ import './App.css';
 function App() {
   const [content, setContent] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState(templates[0].id);
-  const [titleSize, setTitleSize] = useState(64);
   const [bodySize, setBodySize] = useState(40);
   const [images, setImages] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showPreviewMode, setShowPreviewMode] = useState(false);
+  const [parsedContent, setParsedContent] = useState('');
 
-  const handleTransform = useCallback(async () => {
-    if (!content.trim()) return;
+  const handleTransform = useCallback(async (contentToTransform = content, templateOverride) => {
+    if (!contentToTransform.trim()) return;
 
     setIsGenerating(true);
     setImages([]);
 
+    const targetTemplate = templateOverride || selectedTemplate;
+
     try {
-      const blocks = splitTextIntoBlocks(content, {
+      const blocks = splitTextIntoBlocks(contentToTransform, {
         containerWidth: IMAGE_WIDTH - 120,
         containerHeight: IMAGE_HEIGHT - 120,
-        titleFontSize: titleSize,
         bodyFontSize: bodySize,
         padding: 60,
       });
 
-      // 渲染所有区块
       const tempContainer = document.createElement('div');
       tempContainer.style.position = 'absolute';
       tempContainer.style.left = '-9999px';
@@ -50,13 +51,11 @@ function App() {
         root.render(
           <ArticleBlock
             block={block}
-            template={selectedTemplate}
-            titleSize={titleSize}
+            template={targetTemplate}
             bodySize={bodySize}
           />
         );
 
-        // 等待 DOM 更新
         await new Promise(resolve => setTimeout(resolve, 150));
 
         const canvas = await html2canvas(blockElement.firstChild, {
@@ -76,15 +75,20 @@ function App() {
       }
 
       setImages(generatedImages);
-
-      // 清理临时容器
       document.body.removeChild(tempContainer);
     } catch (error) {
       console.error('Error generating images:', error);
     } finally {
       setIsGenerating(false);
     }
-  }, [content, selectedTemplate, titleSize, bodySize]);
+  }, [content, selectedTemplate, bodySize]);
+
+  const handleFormatAndPreview = useCallback(() => {
+    if (!content.trim()) return;
+    setParsedContent(content);
+    setShowPreviewMode(true);
+    handleTransform(content);
+  }, [content, handleTransform]);
 
   const handleDownloadAll = useCallback(async () => {
     if (images.length > 0) {
@@ -92,26 +96,37 @@ function App() {
     }
   }, [images]);
 
+  const handleBackToEditor = useCallback(() => {
+    setShowPreviewMode(false);
+  }, []);
+
+  const handleTemplateChangeInPreview = useCallback((templateId) => {
+    if (parsedContent) {
+      handleTransform(parsedContent, templateId);
+    }
+    setSelectedTemplate(templateId);
+  }, [parsedContent, handleTransform]);
+
   return (
     <div className="app">
       <div className="app-container">
-        <EditorPanel
-          content={content}
-          onContentChange={setContent}
-          selectedTemplate={selectedTemplate}
-          onTemplateChange={setSelectedTemplate}
-          titleSize={titleSize}
-          onTitleSizeChange={setTitleSize}
-          bodySize={bodySize}
-          onBodySizeChange={setBodySize}
-          onTransform={handleTransform}
-          isGenerating={isGenerating}
-        />
-        <PreviewPanel
-          images={images}
-          onDownloadAll={handleDownloadAll}
-          isGenerating={isGenerating}
-        />
+        {showPreviewMode ? (
+          <PreviewPage
+            images={images}
+            selectedTemplate={selectedTemplate}
+            onTemplateChange={handleTemplateChangeInPreview}
+            onDownloadAll={handleDownloadAll}
+            onBack={handleBackToEditor}
+            isGenerating={isGenerating}
+          />
+        ) : (
+          <EditorPage
+            content={content}
+            onContentChange={setContent}
+            onTransform={handleFormatAndPreview}
+            isGenerating={isGenerating}
+          />
+        )}
       </div>
     </div>
   );
