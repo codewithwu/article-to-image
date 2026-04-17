@@ -1,5 +1,4 @@
 import React from 'react';
-import { templates } from '../templates/index';
 
 function TemplateCard({ template, isSelected, onClick }) {
   const templateStyles = template.styles;
@@ -8,32 +7,13 @@ function TemplateCard({ template, isSelected, onClick }) {
     <div
       onClick={onClick}
       className={`template-card ${isSelected ? 'selected' : ''}`}
-      style={{
-        width: 120,
-        padding: 12,
-        borderRadius: 12,
-        border: isSelected ? '3px solid #3b82f6' : '2px solid #e5e7eb',
-        cursor: 'pointer',
-        transition: 'all 0.2s ease',
-        background: templateStyles.background,
-        boxShadow: isSelected ? '0 4px 12px rgba(59, 130, 246, 0.3)' : '0 1px 3px rgba(0,0,0,0.1)',
-      }}
     >
-      {/* 预览框 */}
       <div
-        style={{
-          width: '100%',
-          height: 80,
-          background: templateStyles.background,
-          borderRadius: 6,
-          marginBottom: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          padding: 8,
-          boxSizing: 'border-box',
-        }}
+        className="template-preview"
+        style={{ background: templateStyles.background }}
       >
         <div
+          className="template-preview-line"
           style={{
             width: 4,
             height: 16,
@@ -43,6 +23,7 @@ function TemplateCard({ template, isSelected, onClick }) {
           }}
         />
         <div
+          className="template-preview-line"
           style={{
             width: '70%',
             height: 8,
@@ -53,6 +34,7 @@ function TemplateCard({ template, isSelected, onClick }) {
           }}
         />
         <div
+          className="template-preview-line"
           style={{
             width: '90%',
             height: 6,
@@ -63,6 +45,7 @@ function TemplateCard({ template, isSelected, onClick }) {
           }}
         />
         <div
+          className="template-preview-line"
           style={{
             width: '85%',
             height: 6,
@@ -73,6 +56,7 @@ function TemplateCard({ template, isSelected, onClick }) {
           }}
         />
         <div
+          className="template-preview-line"
           style={{
             width: '60%',
             height: 6,
@@ -83,25 +67,13 @@ function TemplateCard({ template, isSelected, onClick }) {
         />
       </div>
 
-      {/* 模板名称 */}
       <div
-        style={{
-          textAlign: 'center',
-          fontSize: 13,
-          fontWeight: 600,
-          color: templateStyles.titleColor,
-        }}
+        className="template-name"
+        style={{ color: templateStyles.titleColor }}
       >
         {template.name}
       </div>
-      <div
-        style={{
-          textAlign: 'center',
-          fontSize: 10,
-          color: '#9ca3af',
-          marginTop: 2,
-        }}
-      >
+      <div className="template-desc">
         {template.description}
       </div>
     </div>

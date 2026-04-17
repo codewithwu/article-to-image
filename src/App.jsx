@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import html2canvas from 'html2canvas';
 import EditorPage from './components/EditorPage';
@@ -12,17 +12,30 @@ import './App.css';
 function App() {
   const [content, setContent] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState(templates[0].id);
-  const [bodySize, setBodySize] = useState(40);
+  const [bodySize] = useState(40);
   const [images, setImages] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showPreviewMode, setShowPreviewMode] = useState(false);
   const [parsedContent, setParsedContent] = useState('');
+  const [generationProgress, setGenerationProgress] = useState(null);
+  const [error, setError] = useState(null);
+  const [transitionClass, setTransitionClass] = useState('');
+
+  // Handle page transition
+  useEffect(() => {
+    if (transitionClass) {
+      const timer = setTimeout(() => setTransitionClass(''), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [transitionClass]);
 
   const handleTransform = useCallback(async (contentToTransform = content, templateOverride) => {
     if (!contentToTransform.trim()) return;
 
     setIsGenerating(true);
     setImages([]);
+    setError(null);
+    setGenerationProgress({ current: 0, total: 0 });
 
     const targetTemplate = templateOverride || selectedTemplate;
 
@@ -34,29 +47,35 @@ function App() {
         padding: 60,
       });
 
+      setGenerationProgress({ current: 0, total: blocks.length });
+
       const tempContainer = document.createElement('div');
       tempContainer.style.position = 'absolute';
       tempContainer.style.left = '-9999px';
       tempContainer.style.top = '-9999px';
       document.body.appendChild(tempContainer);
 
+      const blockElement = document.createElement('div');
+      tempContainer.appendChild(blockElement);
+      const root = ReactDOM.createRoot(blockElement);
+
       const generatedImages = [];
 
       for (let index = 0; index < blocks.length; index++) {
         const block = blocks[index];
-        const blockElement = document.createElement('div');
-        tempContainer.appendChild(blockElement);
 
-        const root = ReactDOM.createRoot(blockElement);
-        root.render(
-          <ArticleBlock
-            block={block}
-            template={targetTemplate}
-            bodySize={bodySize}
-          />
-        );
+        await new Promise(resolve => {
+          root.render(
+            <ArticleBlock
+              block={block}
+              template={targetTemplate}
+              bodySize={bodySize}
+            />
+          );
+          setTimeout(resolve, 150);
+        });
 
-        await new Promise(resolve => setTimeout(resolve, 150));
+        setGenerationProgress({ current: index + 1, total: blocks.length });
 
         const canvas = await html2canvas(blockElement.firstChild, {
           width: IMAGE_WIDTH,
@@ -70,14 +89,15 @@ function App() {
           canvas,
           dataUrl: canvas.toDataURL('image/png'),
         });
-
-        root.unmount();
       }
 
       setImages(generatedImages);
+      root.unmount();
       document.body.removeChild(tempContainer);
-    } catch (error) {
-      console.error('Error generating images:', error);
+      setGenerationProgress({ current: blocks.length, total: blocks.length });
+    } catch (err) {
+      console.error('Error generating images:', err);
+      setError('生成图片时出现错误，请重试。如果问题持续存在，请尝试减少文章内容。');
     } finally {
       setIsGenerating(false);
     }
@@ -86,7 +106,11 @@ function App() {
   const handleFormatAndPreview = useCallback(() => {
     if (!content.trim()) return;
     setParsedContent(content);
-    setShowPreviewMode(true);
+    setTransitionClass('fade-out');
+    setTimeout(() => {
+      setShowPreviewMode(true);
+      setTransitionClass('fade-in');
+    }, 150);
     handleTransform(content);
   }, [content, handleTransform]);
 
@@ -97,7 +121,13 @@ function App() {
   }, [images]);
 
   const handleBackToEditor = useCallback(() => {
-    setShowPreviewMode(false);
+    setTransitionClass('fade-out');
+    setTimeout(() => {
+      setShowPreviewMode(false);
+      setError(null);
+      setImages([]);
+      setTransitionClass('fade-in');
+    }, 150);
   }, []);
 
   const handleTemplateChangeInPreview = useCallback((templateId) => {
@@ -109,7 +139,7 @@ function App() {
 
   return (
     <div className="app">
-      <div className="app-container">
+      <div className={`app-container ${transitionClass}`}>
         {showPreviewMode ? (
           <PreviewPage
             images={images}
@@ -118,6 +148,8 @@ function App() {
             onDownloadAll={handleDownloadAll}
             onBack={handleBackToEditor}
             isGenerating={isGenerating}
+            generationProgress={generationProgress}
+            error={error}
           />
         ) : (
           <EditorPage

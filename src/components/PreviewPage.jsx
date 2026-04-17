@@ -35,7 +35,19 @@ const ZoomOutIcon = () => (
   </svg>
 );
 
-function PreviewPage({ images, selectedTemplate, onTemplateChange, onDownloadAll, onBack, isGenerating }) {
+const ImageIcon = () => (
+  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+    <circle cx="8.5" cy="8.5" r="1.5" />
+    <polyline points="21 15 16 10 5 21" />
+  </svg>
+);
+
+const Spinner = () => (
+  <div className="spinner" />
+);
+
+function PreviewPage({ images, selectedTemplate, onTemplateChange, onDownloadAll, onBack, isGenerating, generationProgress, error }) {
   const [zoom, setZoom] = useState(100);
   const [imageSize, setImageSize] = useState(240);
 
@@ -56,123 +68,44 @@ function PreviewPage({ images, selectedTemplate, onTemplateChange, onDownloadAll
   };
 
   return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        background: '#f8fafc',
-      }}
-    >
-      {/* 左侧图片预览区 */}
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}
-      >
-        {/* 顶部栏 */}
-        <div
-          style={{
-            padding: '16px 24px',
-            borderBottom: '1px solid #e5e7eb',
-            background: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+    <div className="preview-page">
+      <div className="preview-main">
+        <div className="preview-header">
+          <div className="preview-header-left">
             <button
               onClick={onBack}
-              style={{
-                padding: '8px 16px',
-                borderRadius: 8,
-                border: '1px solid #e5e7eb',
-                background: '#fff',
-                color: '#374151',
-                fontSize: 14,
-                fontWeight: 500,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = '#f3f4f6';
-                e.target.style.borderColor = '#d1d5db';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = '#fff';
-                e.target.style.borderColor = '#e5e7eb';
-              }}
+              className="btn"
             >
               <BackIcon />
               返回编辑
             </button>
-            <h3
-              style={{
-                margin: 0,
-                fontSize: 16,
-                fontWeight: 600,
-                color: '#1f2937',
-              }}
-            >
+            <h3 className="preview-title">
               预览区域
             </h3>
             {images.length > 0 && (
-              <span
-                style={{
-                  fontSize: 13,
-                  color: '#6b7280',
-                }}
-              >
+              <span className="preview-subtitle">
                 (共 {images.length} 张图片)
               </span>
             )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            {/* 缩放控制 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="preview-header-right">
+            <div className="zoom-controls">
               <button
                 onClick={handleZoomOut}
                 disabled={zoom <= 50}
-                style={{
-                  padding: '8px',
-                  borderRadius: 6,
-                  border: '1px solid #e5e7eb',
-                  background: '#fff',
-                  color: zoom <= 50 ? '#d1d5db' : '#374151',
-                  cursor: zoom <= 50 ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  transition: 'all 0.2s',
-                }}
+                className="btn-icon"
                 title="缩小"
               >
                 <ZoomOutIcon />
               </button>
-              <span style={{ fontSize: 13, color: '#6b7280', minWidth: 50, textAlign: 'center' }}>
+              <span className="zoom-label">
                 {zoom}%
               </span>
               <button
                 onClick={handleZoomIn}
                 disabled={zoom >= 200}
-                style={{
-                  padding: '8px',
-                  borderRadius: 6,
-                  border: '1px solid #e5e7eb',
-                  background: '#fff',
-                  color: zoom >= 200 ? '#d1d5db' : '#374151',
-                  cursor: zoom >= 200 ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  transition: 'all 0.2s',
-                }}
+                className="btn-icon"
                 title="放大"
               >
                 <ZoomInIcon />
@@ -182,22 +115,7 @@ function PreviewPage({ images, selectedTemplate, onTemplateChange, onDownloadAll
             {images.length > 0 && (
               <button
                 onClick={onDownloadAll}
-                style={{
-                  padding: '10px 20px',
-                  borderRadius: 8,
-                  border: 'none',
-                  background: '#10b981',
-                  color: '#fff',
-                  fontSize: 14,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => e.target.style.background = '#059669'}
-                onMouseLeave={(e) => e.target.style.background = '#10b981'}
+                className="btn btn-success"
               >
                 <DownloadIcon />
                 批量下载
@@ -206,61 +124,41 @@ function PreviewPage({ images, selectedTemplate, onTemplateChange, onDownloadAll
           </div>
         </div>
 
-        {/* 图片列表 */}
-        <div
-          style={{
-            flex: 1,
-            overflow: 'auto',
-            padding: 24,
-          }}
-        >
-          {images.length === 0 ? (
-            <div
-              style={{
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#9ca3af',
-              }}
-            >
+        {isGenerating && generationProgress && (
+          <div className="progress-bar-container">
+            <div className="progress-bar-text">
+              <Spinner />
+              正在生成图片... ({generationProgress.current} / {generationProgress.total})
+            </div>
+            <div className="progress-bar">
               <div
-                style={{
-                  width: 80,
-                  height: 80,
-                  borderRadius: '50%',
-                  background: '#f3f4f6',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 16,
-                }}
-              >
-                <svg
-                  width="40"
-                  height="40"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                >
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                  <circle cx="8.5" cy="8.5" r="1.5" />
-                  <polyline points="21 15 16 10 5 21" />
-                </svg>
+                className="progress-bar-fill"
+                style={{ width: `${(generationProgress.current / generationProgress.total) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
+
+        <div className="preview-content">
+          {images.length === 0 ? (
+            <div className="preview-empty">
+              <div className="preview-empty-icon">
+                <ImageIcon />
               </div>
-              <p style={{ fontSize: 15, margin: 0 }}>
+              <p className="preview-empty-text">
                 {isGenerating ? '正在生成图片...' : '等待生成图片...'}
               </p>
             </div>
           ) : (
             <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: `repeat(auto-fill, minmax(${imageSize}px, 1fr))`,
-                gap: 20,
-              }}
+              className="image-grid"
+              style={{ gridTemplateColumns: `repeat(auto-fill, minmax(${imageSize}px, 1fr))` }}
             >
               {images.map((imageData, index) => (
                 <ImageCard key={index} imageData={imageData} index={index} />
@@ -270,59 +168,18 @@ function PreviewPage({ images, selectedTemplate, onTemplateChange, onDownloadAll
         </div>
       </div>
 
-      {/* 右侧模板选择 */}
-      <div
-        style={{
-          width: 320,
-          minWidth: 320,
-          background: '#fff',
-          borderLeft: '1px solid #e5e7eb',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            padding: '20px 24px',
-            borderBottom: '1px solid #e5e7eb',
-          }}
-        >
-          <h3
-            style={{
-              margin: 0,
-              fontSize: 16,
-              fontWeight: 600,
-              color: '#1f2937',
-            }}
-          >
+      <div className="preview-sidebar">
+        <div className="preview-sidebar-header">
+          <h3 className="preview-sidebar-title">
             模板选择
           </h3>
-          <p
-            style={{
-              margin: '4px 0 0 0',
-              fontSize: 13,
-              color: '#6b7280',
-            }}
-          >
+          <p className="preview-sidebar-subtitle">
             点击模板实时更新预览
           </p>
         </div>
 
-        <div
-          style={{
-            flex: 1,
-            overflow: 'auto',
-            padding: 20,
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 16,
-            }}
-          >
+        <div className="preview-sidebar-content">
+          <div className="template-list">
             {templates.map((template) => (
               <TemplateCard
                 key={template.id}

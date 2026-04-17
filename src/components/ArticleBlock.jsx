@@ -20,7 +20,6 @@ function ArticleBlock({ block, template, bodySize }) {
         overflow: 'hidden',
       }}
     >
-      {/* 装饰线条 */}
       <div
         style={{
           position: 'absolute',
@@ -33,14 +32,13 @@ function ArticleBlock({ block, template, bodySize }) {
         }}
       />
 
-      {/* 正文 - 使用 ReactMarkdown 渲染 */}
       <div
         style={{
           flex: 1,
           fontSize: bodySize,
           color: templateStyles.bodyColor,
           lineHeight: 1.7,
-          fontFamily: 'system-ui, -apple-system, sans-serif',
+          fontFamily: "'Noto Serif SC', 'Songti SC', 'SimSun', serif",
           letterSpacing: '0.01em',
           overflow: 'hidden',
         }}
@@ -73,7 +71,6 @@ function ArticleBlock({ block, template, bodySize }) {
         </ReactMarkdown>
       </div>
 
-      {/* 底部装饰 */}
       <div
         style={{
           position: 'absolute',

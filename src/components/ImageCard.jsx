@@ -15,68 +15,20 @@ function ImageCard({ imageData, index }) {
   }, [imageData.canvas, index]);
 
   return (
-    <div
-      className="image-card"
-      style={{
-        background: '#f9fafb',
-        borderRadius: 12,
-        padding: 16,
-        border: '1px solid #e5e7eb',
-      }}
-    >
-      <div
-        style={{
-          position: 'relative',
-          borderRadius: 8,
-          overflow: 'hidden',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        }}
-      >
+    <div className="image-card">
+      <div className="image-card-preview">
         <img
           src={imageData.dataUrl}
           alt={`Article block ${index + 1}`}
-          style={{
-            width: '100%',
-            height: 'auto',
-            display: 'block',
-          }}
         />
-
-        {/* 下载按钮 */}
         <button
           onClick={handleDownload}
-          style={{
-            position: 'absolute',
-            bottom: 12,
-            right: 12,
-            width: 44,
-            height: 44,
-            borderRadius: '50%',
-            background: 'rgba(0,0,0,0.7)',
-            color: '#fff',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'background 0.2s',
-          }}
-          onMouseEnter={(e) => e.target.style.background = 'rgba(0,0,0,0.9)'}
-          onMouseLeave={(e) => e.target.style.background = 'rgba(0,0,0,0.7)'}
+          className="image-card-btn"
         >
           <DownloadIcon />
         </button>
       </div>
-
-      <div
-        style={{
-          marginTop: 10,
-          textAlign: 'center',
-          fontSize: 13,
-          color: '#6b7280',
-          fontWeight: 500,
-        }}
-      >
+      <div className="image-card-label">
         第 {index + 1} 张
       </div>
     </div>

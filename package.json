@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/dm-sans": "^5.2.8",
+    "@fontsource/noto-serif-sc": "^5.2.9",
     "file-saver": "^2.0.5",
     "html2canvas": "^1.4.1",
     "jszip": "^3.10.1",
