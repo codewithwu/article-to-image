@@ -15,16 +15,6 @@ function TemplateCard({ template, isSelected, onClick }) {
         <div
           className="template-preview-line"
           style={{
-            width: 4,
-            height: 16,
-            background: templateStyles.accentColor,
-            borderRadius: 2,
-            marginBottom: 6,
-          }}
-        />
-        <div
-          className="template-preview-line"
-          style={{
             width: '70%',
             height: 8,
             background: templateStyles.titleColor,

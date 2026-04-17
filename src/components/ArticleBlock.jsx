@@ -22,24 +22,14 @@ function ArticleBlock({ block, template, bodySize }) {
     >
       <div
         style={{
-          position: 'absolute',
-          top: PADDING,
-          left: PADDING,
-          width: 6,
-          height: 80,
-          background: templateStyles.accentColor,
-          borderRadius: 3,
-        }}
-      />
-
-      <div
-        style={{
           flex: 1,
           fontSize: bodySize,
           color: templateStyles.bodyColor,
           lineHeight: 1.7,
           fontFamily: "'Noto Serif SC', 'Songti SC', 'SimSun', serif",
           letterSpacing: '0.01em',
+          paddingTop: 60,  // 顶部预留60px空白
+          paddingBottom: 100, // 底部预留100px空白
           overflow: 'hidden',
         }}
       >

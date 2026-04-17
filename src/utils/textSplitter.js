@@ -6,8 +6,8 @@ function measureTextHeight(text, fontSize, lineHeight, containerWidth, padding) 
   const availableWidth = containerWidth - padding * 2;
 
   // 中文字符宽度约为字号的 1:1，英文约为 0.5:1
-  // 混合文本取平均值约 0.75
-  const avgCharWidthRatio = 0.75;
+  // 混合文本取平均值约 0.6-0.7，这里用保守值确保不溢出
+  const avgCharWidthRatio = 0.6;
   const avgCharWidth = fontSize * avgCharWidthRatio;
 
   // 计算每行可容纳的字符数
@@ -20,6 +20,7 @@ function measureTextHeight(text, fontSize, lineHeight, containerWidth, padding) 
   });
 
   const totalLines = lines.reduce((sum, l) => sum + l, 0);
+  // lineHeight 是倍数（如 1.7），所以要乘以 fontSize
   return totalLines * lineHeight * fontSize;
 }
 
@@ -52,13 +53,21 @@ export function splitTextIntoBlocks(content, options = {}) {
   let currentBlock = { content: '' };
   let currentHeight = 0;
 
-  const availableHeight = containerHeight - padding * 2;
+  // 内容区域上下各预留80px空白
+  const contentPaddingTop = 60;
+  const contentPaddingBottom = 100;
+  // 底部装饰元素占用的空间（约60px：圆圈16 + 横线4 + 间距8 + 底部padding60）
+  const bottomDecorationHeight = 60;
+
+  // 实际可用高度 = 容器高度 - 容器padding - 内容上下padding - 底部装饰 - 顶部安全边距
+  const availableHeight = containerHeight - padding * 2 - contentPaddingTop - contentPaddingBottom - bottomDecorationHeight;
 
   for (const paragraph of paragraphs) {
     const paraHeight = measureParagraphHeight(paragraph, bodyFontSize, bodyLineHeight, containerWidth, padding);
 
-    // 检查是否需要新建区块
-    if (currentHeight + paraHeight > availableHeight && currentBlock.content) {
+    // 检查是否需要新建区块（留出安全边距防止文字被切）
+    const safetyMargin = bodyFontSize * 2; // 留出两行文字的安全边距
+    if (currentHeight + paraHeight > availableHeight - safetyMargin && currentBlock.content) {
       blocks.push({ ...currentBlock });
       currentBlock = { content: '' };
       currentHeight = 0;
