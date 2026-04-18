@@ -10,11 +10,18 @@ const MagicIcon = () => (
   </svg>
 );
 
+const HomeIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+    <polyline points="9 22 9 12 15 12 15 22"/>
+  </svg>
+);
+
 const Spinner = () => (
   <div className="spinner" />
 );
 
-function EditorPage({ content, onContentChange, onTransform, isGenerating }) {
+function EditorPage({ content, onContentChange, onTransform, isGenerating, onHome }) {
   const textareaRef = useRef(null);
   const previewRef = useRef(null);
 
@@ -56,6 +63,10 @@ function EditorPage({ content, onContentChange, onTransform, isGenerating }) {
     <div className="editor-page">
       <div className="editor-header">
         <h1 className="editor-brand">ProseFrame<span className="editor-divider">|</span>将长文智能分割，转换为精美的社交媒体图片</h1>
+        <button onClick={onHome} className="btn btn-ghost btn-home">
+          <HomeIcon />
+          首页
+        </button>
       </div>
       <MarkdownToolbar textareaRef={textareaRef} onFormat={onContentChange} />
 

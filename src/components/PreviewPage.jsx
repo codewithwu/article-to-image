@@ -10,6 +10,13 @@ const BackIcon = () => (
   </svg>
 );
 
+const HomeIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+    <polyline points="9 22 9 12 15 12 15 22"/>
+  </svg>
+);
+
 const DownloadIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -47,7 +54,7 @@ const Spinner = () => (
   <div className="spinner" />
 );
 
-function PreviewPage({ images, selectedTemplate, onTemplateChange, onDownloadAll, onBack, isGenerating, generationProgress, error }) {
+function PreviewPage({ images, selectedTemplate, onTemplateChange, onDownloadAll, onBack, onHome, isGenerating, generationProgress, error }) {
   const [zoom, setZoom] = useState(100);
   const [imageSize, setImageSize] = useState(240);
 
@@ -78,6 +85,13 @@ function PreviewPage({ images, selectedTemplate, onTemplateChange, onDownloadAll
             >
               <BackIcon />
               返回编辑
+            </button>
+            <button
+              onClick={onHome}
+              className="btn btn-ghost"
+            >
+              <HomeIcon />
+              首页
             </button>
             <h3 className="preview-title">
               预览区域

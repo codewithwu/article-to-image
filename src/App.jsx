@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import html2canvas from 'html2canvas';
+import HomePage from './components/HomePage';
 import EditorPage from './components/EditorPage';
 import PreviewPage from './components/PreviewPage';
 import ArticleBlock from './components/ArticleBlock';
@@ -10,6 +11,7 @@ import { templates, IMAGE_WIDTH, IMAGE_HEIGHT } from './templates/index';
 import './App.css';
 
 function App() {
+  const [showHome, setShowHome] = useState(true);
   const [content, setContent] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState(templates[0].id);
   const [bodySize] = useState(40);
@@ -28,6 +30,14 @@ function App() {
       return () => clearTimeout(timer);
     }
   }, [transitionClass]);
+
+  const handleEnterApp = useCallback(() => {
+    setTransitionClass('page-exit');
+    setTimeout(() => {
+      setShowHome(false);
+      setTransitionClass('page-enter');
+    }, 400);
+  }, []);
 
   const handleTransform = useCallback(async (contentToTransform = content, templateOverride) => {
     if (!contentToTransform.trim()) return;
@@ -137,16 +147,29 @@ function App() {
     setSelectedTemplate(templateId);
   }, [parsedContent, handleTransform]);
 
+  const handleBackToHome = useCallback(() => {
+    setTransitionClass('page-exit');
+    setTimeout(() => {
+      setShowPreviewMode(false);
+      setShowHome(true);
+      setContent('');
+      setTransitionClass('page-enter');
+    }, 400);
+  }, []);
+
   return (
     <div className="app">
       <div className={`app-container ${transitionClass}`}>
-        {showPreviewMode ? (
+        {showHome ? (
+          <HomePage onEnter={handleEnterApp} />
+        ) : showPreviewMode ? (
           <PreviewPage
             images={images}
             selectedTemplate={selectedTemplate}
             onTemplateChange={handleTemplateChangeInPreview}
             onDownloadAll={handleDownloadAll}
             onBack={handleBackToEditor}
+            onHome={handleBackToHome}
             isGenerating={isGenerating}
             generationProgress={generationProgress}
             error={error}
@@ -157,6 +180,7 @@ function App() {
             onContentChange={setContent}
             onTransform={handleFormatAndPreview}
             isGenerating={isGenerating}
+            onHome={handleBackToHome}
           />
         )}
       </div>
