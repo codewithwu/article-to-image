@@ -7,7 +7,7 @@ function measureTextHeight(text, fontSize, lineHeight, containerWidth, padding) 
 
   // 中文字符宽度约为字号的 1:1，英文约为 0.5:1
   // 混合文本取平均值约 0.6-0.7，这里用保守值确保不溢出
-  const avgCharWidthRatio = 0.6;
+  const avgCharWidthRatio = 0.85;
   const avgCharWidth = fontSize * avgCharWidthRatio;
 
   // 计算每行可容纳的字符数
@@ -66,7 +66,7 @@ export function splitTextIntoBlocks(content, options = {}) {
     const paraHeight = measureParagraphHeight(paragraph, bodyFontSize, bodyLineHeight, containerWidth, padding);
 
     // 检查是否需要新建区块（留出安全边距防止文字被切）
-    const safetyMargin = bodyFontSize * 2; // 留出两行文字的安全边距
+    const safetyMargin = bodyFontSize * 4; // 留出四行文字的安全边距
     if (currentHeight + paraHeight > availableHeight - safetyMargin && currentBlock.content) {
       blocks.push({ ...currentBlock });
       currentBlock = { content: '' };
