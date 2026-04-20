@@ -2,6 +2,21 @@ import React, { useRef } from 'react';
 import MarkdownToolbar from './MarkdownToolbar';
 import ReactMarkdown from 'react-markdown';
 
+const DraftBoxIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+  </svg>
+);
+
+const SaveIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+    <polyline points="17 21 17 13 7 13 7 21"/>
+    <polyline points="7 3 7 8 15 8"/>
+  </svg>
+);
+
 const MagicIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 2L2 7l10 5 10-5-10-5z"/>
@@ -21,7 +36,7 @@ const Spinner = () => (
   <div className="spinner" />
 );
 
-function EditorPage({ content, onContentChange, onTransform, isGenerating, onHome }) {
+function EditorPage({ content, onContentChange, onTransform, isGenerating, onHome, onSaveDraft, draftCount, onDraftBoxClick }) {
   const textareaRef = useRef(null);
   const previewRef = useRef(null);
 
@@ -62,11 +77,20 @@ function EditorPage({ content, onContentChange, onTransform, isGenerating, onHom
   return (
     <div className="editor-page">
       <div className="editor-header">
+        <div className="editor-header-left">
+          <button onClick={onHome} className="btn btn-ghost btn-home">
+            <HomeIcon />
+            首页
+          </button>
+        </div>
         <h1 className="editor-brand">ProseFrame<span className="editor-divider">|</span>将长文智能分割，转换为精美的社交媒体图片</h1>
-        <button onClick={onHome} className="btn btn-ghost btn-home">
-          <HomeIcon />
-          首页
-        </button>
+        <div className="editor-header-right">
+          <button onClick={onDraftBoxClick} className="btn btn-ghost btn-draft-box">
+            <DraftBoxIcon />
+            草稿箱
+            {draftCount > 0 && <span className="draft-badge">{draftCount}</span>}
+          </button>
+        </div>
       </div>
       <MarkdownToolbar textareaRef={textareaRef} onFormat={onContentChange} />
 
@@ -96,23 +120,33 @@ function EditorPage({ content, onContentChange, onTransform, isGenerating, onHom
       </div>
 
       <div className="editor-footer">
-        <button
-          onClick={onTransform}
-          disabled={isGenerating || !content.trim()}
-          className="btn-transform"
-        >
-          {isGenerating ? (
-            <>
-              <Spinner />
-              生成中...
-            </>
-          ) : (
-            <>
-              <MagicIcon />
-              一键排版
-            </>
-          )}
-        </button>
+        <div className="editor-footer-actions">
+          <button
+            onClick={onSaveDraft}
+            disabled={!content.trim()}
+            className="btn btn-save-draft"
+          >
+            <SaveIcon />
+            暂存
+          </button>
+          <button
+            onClick={onTransform}
+            disabled={isGenerating || !content.trim()}
+            className="btn-transform"
+          >
+            {isGenerating ? (
+              <>
+                <Spinner />
+                生成中...
+              </>
+            ) : (
+              <>
+                <MagicIcon />
+                一键排版
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

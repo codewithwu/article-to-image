@@ -5,9 +5,11 @@ import HomePage from './components/HomePage';
 import EditorPage from './components/EditorPage';
 import PreviewPage from './components/PreviewPage';
 import ArticleBlock from './components/ArticleBlock';
+import DraftBox from './components/DraftBox';
 import { splitTextIntoBlocks } from './utils/textSplitter';
 import { downloadImagesAsZip } from './utils/download';
 import { templates, IMAGE_WIDTH, IMAGE_HEIGHT } from './templates/index';
+import { getDrafts, saveDraft, deleteDraft } from './utils/draftStorage';
 import './App.css';
 
 function App() {
@@ -22,6 +24,13 @@ function App() {
   const [generationProgress, setGenerationProgress] = useState(null);
   const [error, setError] = useState(null);
   const [transitionClass, setTransitionClass] = useState('');
+  const [showDraftBox, setShowDraftBox] = useState(false);
+  const [drafts, setDrafts] = useState([]);
+
+  // Load drafts on mount
+  useEffect(() => {
+    setDrafts(getDrafts());
+  }, []);
 
   // Handle page transition
   useEffect(() => {
@@ -157,6 +166,23 @@ function App() {
     }, 400);
   }, []);
 
+  const handleSaveDraft = useCallback(() => {
+    if (content.trim()) {
+      const updatedDrafts = saveDraft(content);
+      setDrafts(updatedDrafts);
+    }
+  }, [content]);
+
+  const handleRestoreDraft = useCallback((draftContent) => {
+    setContent(draftContent);
+    setShowDraftBox(false);
+  }, []);
+
+  const handleDeleteDraft = useCallback((id) => {
+    const updatedDrafts = deleteDraft(id);
+    setDrafts(updatedDrafts);
+  }, []);
+
   return (
     <div className="app">
       <div className={`app-container ${transitionClass}`}>
@@ -175,13 +201,26 @@ function App() {
             error={error}
           />
         ) : (
-          <EditorPage
-            content={content}
-            onContentChange={setContent}
-            onTransform={handleFormatAndPreview}
-            isGenerating={isGenerating}
-            onHome={handleBackToHome}
-          />
+          <>
+            <EditorPage
+              content={content}
+              onContentChange={setContent}
+              onTransform={handleFormatAndPreview}
+              isGenerating={isGenerating}
+              onHome={handleBackToHome}
+              onSaveDraft={handleSaveDraft}
+              draftCount={drafts.length}
+              onDraftBoxClick={() => setShowDraftBox(true)}
+            />
+            {showDraftBox && (
+              <DraftBox
+                drafts={drafts}
+                onRestore={handleRestoreDraft}
+                onDelete={handleDeleteDraft}
+                onClose={() => setShowDraftBox(false)}
+              />
+            )}
+          </>
         )}
       </div>
     </div>
