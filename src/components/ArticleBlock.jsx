@@ -2,8 +2,9 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { templates, IMAGE_WIDTH, IMAGE_HEIGHT, PADDING } from '../templates/index';
 
-function ArticleBlock({ block, template, bodySize }) {
+function ArticleBlock({ block, template, bodySize, paragraphStartIndex = 0 }) {
   const templateStyles = templates.find(t => t.id === template)?.styles || templates[0].styles;
+  const currentParagraphIndex = React.useRef(paragraphStartIndex);
 
   return (
     <div
@@ -28,14 +29,33 @@ function ArticleBlock({ block, template, bodySize }) {
           lineHeight: 1.7,
           fontFamily: "'Noto Serif SC', 'Songti SC', 'SimSun', serif",
           letterSpacing: '0.01em',
-          paddingTop: 60,  // 顶部预留60px空白
-          paddingBottom: 100, // 底部预留100px空白
+          paddingTop: 30,  // 顶部预留30px空白
+          paddingBottom: 40, // 底部预留40px空白
+          paddingLeft: 30,  // 左边预留30px空白
+          paddingRight: 30, // 右边预留30px空白
           overflow: 'hidden',
         }}
       >
         <ReactMarkdown
           components={{
-            p: ({ children }) => <p style={{ margin: '0 0 1em 0' }}>{children}</p>,
+            p: ({ children }) => {
+              const paragraphIdx = currentParagraphIndex.current++;
+              const isContinuation = block.continuation && paragraphIdx === 0;
+              return (
+                <p
+                  className="article-paragraph"
+                  style={{
+                    margin: '0 0 1em 0',
+                    textIndent: isContinuation ? '2em' : '0',
+                  }}
+                >
+                  {isContinuation && (
+                    <span style={{ marginRight: '0.3em', fontStyle: 'italic', opacity: 0.6 }}>↩</span>
+                  )}
+                  {children}
+                </p>
+              );
+            },
             h1: ({ children }) => <h1 style={{ fontSize: bodySize * 1.5, fontWeight: 700, margin: '0 0 0.5em 0', lineHeight: 1.3 }}>{children}</h1>,
             h2: ({ children }) => <h2 style={{ fontSize: bodySize * 1.3, fontWeight: 700, margin: '0 0 0.5em 0', lineHeight: 1.3 }}>{children}</h2>,
             h3: ({ children }) => <h3 style={{ fontSize: bodySize * 1.1, fontWeight: 700, margin: '0 0 0.5em 0', lineHeight: 1.3 }}>{children}</h3>,
@@ -64,8 +84,8 @@ function ArticleBlock({ block, template, bodySize }) {
       <div
         style={{
           position: 'absolute',
-          bottom: PADDING,
-          right: PADDING,
+          bottom: 40,  // 放在底部空白区域内
+          right: 30,
           display: 'flex',
           alignItems: 'center',
           gap: 8,
