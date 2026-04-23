@@ -543,6 +543,19 @@ body {
   color: var(--color-text-muted);
 }
 
+.char-count {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.char-count-divider {
+  color: var(--color-border-strong);
+}
+
 .editor-header {
   position: relative;
   padding: var(--space-4) var(--space-6);

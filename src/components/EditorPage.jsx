@@ -40,6 +40,16 @@ function EditorPage({ content, onContentChange, onTransform, isGenerating, onHom
   const textareaRef = useRef(null);
   const previewRef = useRef(null);
 
+  // Format number with commas
+  const formatNumber = (num) => num.toLocaleString();
+
+  // Count Chinese characters (using regex range for CJK characters)
+  const chineseCharCount = (content.match(/[\u4e00-\u9fa5]/g) || []).length;
+  // Count English characters
+  const englishCharCount = (content.match(/[a-zA-Z]/g) || []).length;
+  // Total character count
+  const totalChars = content.length;
+
   const handlePreviewSelect = () => {
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed) {
@@ -103,6 +113,13 @@ function EditorPage({ content, onContentChange, onTransform, isGenerating, onHom
             placeholder="在这里输入或粘贴你的文章内容，支持 Markdown 格式..."
             className="editor-textarea"
           />
+          <div className="char-count">
+            <span>中文字数: {formatNumber(chineseCharCount)}</span>
+            <span className="char-count-divider">|</span>
+            <span>英文字数: {formatNumber(englishCharCount)}</span>
+            <span className="char-count-divider">|</span>
+            <span>字符数: {formatNumber(totalChars)}</span>
+          </div>
         </div>
 
         <div className="preview-panel">
